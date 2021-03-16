@@ -1,0 +1,44 @@
+api-version: 2019-12-01
+location: eastus
+name: paycor-sidecar-example
+properties:
+  containers:
+    - name: yarp-rev-proxy
+      properties:
+        image: agilewaysreg.azurecr.io/sidecar/proxy:1.1
+        ports:
+          - port: 443
+            protocol: TCP
+          - port: 80
+            protocol: TCP
+        resources:
+          requests:
+            cpu: 1.0
+            memoryInGB: 1.5
+    - name: simple-server
+      properties:
+        image: agilewaysreg.azurecr.io/sidecar/server:1.2
+        ports:
+          - port: 5001
+            protocol: TCP
+          - port: 5000
+            protocol: TCP
+        resources:
+          requests:
+            cpu: 1.0
+            memoryInGB: 1.5
+  ipAddress:
+    ports:
+      - port: 443
+        protocol: TCP
+      - port: 80
+        protocol: TCP
+    type: Public
+    dnsNameLabel: paycor-sidecar-78901
+  osType: Linux
+  imageRegistryCredentials:
+    - server: agilewaysreg.azurecr.io
+      username: agilewaysreg
+      password: 0C2haFoI3oF/z44h3QNln51S5bboI7TQ
+tags: null
+type: Microsoft.ContainerInstance/containerGroups
