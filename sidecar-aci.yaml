@@ -39,6 +39,6 @@ properties:
   imageRegistryCredentials:
     - server: agilewaysreg.azurecr.io
       username: agilewaysreg
-      password: 0C2haFoI3oF/z44h3QNln51S5bboI7TQ
+      password: <secret_value>
 tags: null
 type: Microsoft.ContainerInstance/containerGroups
