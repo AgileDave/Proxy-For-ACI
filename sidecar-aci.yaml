@@ -1,16 +1,30 @@
 api-version: 2019-12-01
 location: eastus
-name: paycor-sidecar-example
+name: paycor-sidecar-example-2
 properties:
   containers:
     - name: yarp
       properties:
-        image: agilewaysreg.azurecr.io/sidecar/proxy:1.4
+        image: agilewaysreg.azurecr.io/sidecar/proxy:1.6
         ports:
           - port: 443
             protocol: TCP
           - port: 80
             protocol: TCP
+        environmentVariables:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Production
+          - name: ASPNETCORE_HTTPS_PORT
+            value: 443
+          - name: ASPNETCORE_URLS
+            value: https://+:443;http://+:80
+          - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+            value: /https/proxy.pfx
+          - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+            secureValue: <PFX_password_value>
+        volumeMounts:
+          - name: certs
+            mountPath: /https
         resources:
           requests:
             cpu: 1.0
@@ -21,6 +35,9 @@ properties:
         ports:
           - port: 5000
             protocol: TCP
+        environmentVariables:
+          - name: ASPNETCORE_URLS
+            value: http://+:5000
         resources:
           requests:
             cpu: 1.0
@@ -34,9 +51,13 @@ properties:
     type: Public
     dnsNameLabel: paycor-sidecar-78901
   osType: Linux
+  volumes:
+    - name: certs
+      secret:
+        proxy.pfx: MIIKYAIBAzCCChwGCSqGSIb3DQEHAaCCCg0EggoJMIIKBTCCBe4GCSqGSIb3DQEHAaCCBd8EggXbMIIF1zCCBdMGCyqGSIb3DQEMCgECoIIE7jCCBOowHAYKKoZIhvcNAQwBAzAOBAgXukD5WNaZnwICB9AEggTIhiXqfGoUIJda/rJ0vFkb5M5/Ks36/+gxzXQGTISXiqTWTDMp+nQv/Z0HwZucVlPpY5lkl7ZY/Yu09XMe51K3Fuu8hQIF+lKflERfD4V1QHjZcXeF3qIwxMKqou0mXzv38P9H9tM8qI0E2FvN+5r/aX1q0CZc8GWsTQpOeXpJaipevp1PDBFaxXM1iA6cIZEagERMCBDhtrGCaBGJATyiIcsgO57cwmRRAUh1WJMdHJUwIz0WFLRED4HF1HMruR5PhMmW7dU/5neSHTzClpRWrv9swnICdDVx4gXBRhJ4W2HIk4tYh5dlw7zamrPsodEhMus/7UZmEOKy7bIlG/XzbyWGO1o7cBx1KUrM1wcRTIO9urWIGCjM3Y4tc4rYmxCy3LXpAYI1NuKsedFEdHrXKhdaExEW6t0qPtqRc6/dSMoRyo3Z6RErRHGwrgQwcr4jgOKWHzmoxhoX8bt1/0FzER4IMtqgtI8LX2LiX2TUICfyyh/geAle/nND7MSoWuBCIo3evri8YGMpRHv47d9T7EnUv4gKiq45X7kbYzM5sVhaA5ypGLojLVW/N7LdGxtr4lAncmXoJqFiBbPKOMCUKH2KBzPlEESbFE1n/J+FmnFCYSUgRE5px2TUZuL7WGgBOdE2MM5ieO1JyASCr4X48zH4GhiXnfuRrAxnIgTKzrQIKMy+c1u3QV67ptZjvyNEgyOWjF2HCbDVuxZyHQszO8PW3x8be29b8MV7E35aYea06MgAda9zrG6QqjUhbIRbTt9+UgzVu0WNqKor9jWV7OFEo5x4qKTOh7O5n8ThFIaGci/dVd5smO/wcL6BIDz0ogHEUw6+hRrbq5+9TIAVr/fz3nor6OZSvgZdemVg+70a997gPZIBx/7myVqsPs3Z0QmjO/3n+SLoXQoGgqH/oBBMpwbb+P1jHMhNhddppem0bPnDn2B4Qrc2yAplYQmYtXm8nlrGLgOBLAsq53NVOTfoFVjJzihMjDlR8xfo52P7j9GqgdAehQ+mPiCeIl0OXsYs8vU1/O2d1Tne+mAcj+fO5pD0Lr/Wa/lvrR2OROsFh20s32knc2zcpVvSOnOqn36TsAX4GVT6fyxeU76xZz/K3F4HF1hQlxldBwXKdgTklDmkI6SIBvzhNA9IWnZaNzSAci0dI0rZNy5YkM9HF5WS6+ZVBm35U/NhxO+uKBCbd/sQ9pN2wOSz/9tj+A/hnv6UWV6rjjdKYoOVUCUrP4660y2DV3TnpdzanoCTvik6stta77GTJQ2a1rSFCkNRizreMr2r51k2unIRF10Iy0p+jTMQKrzlgedQShOuiR5R+eNjxt3aIdGLokTYbJmJBXkYJ4iAH9zafgIhCUUjtzpA5JBFdBDVIyQPosFXWQIrRaOUaG20CGDDBWRAsg/FrFZ+TDx6633TGVYFYgt1Wt/Ebnar37iCOGaYIIVtK5NkTKL6GycAUdJhIp2g+1aFFBCQUXS/V3wTFhOHn9NiD7WDJhlBG1hMcg8P1SpM7AuwhVscp2OWNjwMkauWA58ErfgF9kYpvvrzCiKckVTy7w2ST7hKSVbQduhiALTqQqEDYGPrMdyDasXMfxcf4EjR6C3ji+3FPIxZhg9ZCicOiBdXGofMB9/6MYHRMBMGCSqGSIb3DQEJFTEGBAQBAAAAMFsGCSqGSIb3DQEJFDFOHkwAewA0AEQARgA3ADAANQBFAEUALQBFAEQAOAAzAC0ANABGAEQARAAtADkANAA4ADgALQBCAEUAMwAwADkAQwAzAEIAMgBFADUAMwB9MF0GCSsGAQQBgjcRATFQHk4ATQBpAGMAcgBvAHMAbwBmAHQAIABTAG8AZgB0AHcAYQByAGUAIABLAGUAeQAgAFMAdABvAHIAYQBnAGUAIABQAHIAbwB2AGkAZABlAHIwggQPBgkqhkiG9w0BBwagggQAMIID/AIBADCCA/UGCSqGSIb3DQEHATAcBgoqhkiG9w0BDAEDMA4ECOrhywOl1mIwAgIH0ICCA8iQ2+1+QCMOdzmvxkUYGT/PXmdcXqcym45Wj0NxZPEYqOCpPSmlcegFbAwtDgyScI7woaZSkDMu8Jbl2MmcrJNwAw7X3rqP6uvASK2ALpRhzmlwfpSFBld/aFE4p5LRBd4vhAgD/9gHDtYgeAxewRpMrtHc3NP3ebFeOaMzkdMZ/WNN5R/s9huJJC5KBRwvIVWDifziZRKu/MrwsCQalqbmmcfAUx8JQTWngY04MHkiHeku4GUOB1GXxIDQxMb+JbO6BgvoiEchKUru9BfqG0HHyEm5pWyNJ2MExSeytVg1iMQRHkQF0Kcu3DVfm/eM2/woSjiKvylu8N08+vUGLy3jb/peHVqxKftTzrV3Bystz2H3zbY93CIPR+UiHrAj3W+urE2mnUVmc0B9HILERjRuIhSoR/Z6wDA1XMov2hn/9nRyC3j61imHCPuipQ7BaPOViiKEbiBgIs0AQNZ6WZjA7Ze8/vbxHAy3jFqDdm60thHzVof1jfYrH06/C/ySt1ZVI/DC82dJ+KlMW7+KZmXNfy9pWpXKdWTmse3/3ZBMDvBMt7POVKYsPV5+pkUiJpj3SAoy7DQWlnnqCDhDAqxD1ysDaoAKQU9oR0kn+u0ibKDFPwLCD+4gbwtsNV7Vg71PuE48g7TaItN986UkIICwiRFBcsDE6RTpMxtalaBK2dgSOobGs1g4mVuZZLgPq5Ndt+9Yzmb663se/n5G01NwtPQp+1kIQc7CGrigT1daCT1LzMcqWcbls/L2L6A+RqA8fbMjp43/Bd+1S24REoeXfvpaI0+AHc8m1iv6J1bn1OGWEVxXdaE+O2WjNfSs9C4ufQmUOwIKh5Md4KvaFs47htwJdwDENIYH0XGv7yo8pfRNou80BCkIBE8wCMI7hKiEvXavMagTFnMqlj683ejo0oJdLmHXGfAOeRx1ccm6SywkNBuc1ld0C1mRvLMl6sR0/nZZBmg2si5kiWppzdgUqXvasV5Ql2iub6PaZmsuZN8bdBxgyaDguQWfkJ/5dx4jmsLUMp9j4z0URW1yGbxb1RAKCMmEZmJPAXFSBQAdgeiDR1spwi6PRlx3lodJS9nToFc/Gb0fUyN9jmaBtNdBwHAbS4qTs2xiE9tmzJDRqvCR42TIpAcpVdkJ3MXAsXYZhnPav1xa4PLHqt6vuLdF5V7veywFkgoW597ju1P9PaS6R4aS92PHtFZqcg8xHWRTQLVKExWqF6R95C4AgbILk+eTmz9NnWcAdka0HFn5VnWVPVbuWZAa7o/nLR4ntDneYcwE3Krr6jA7MB8wBwYFKw4DAhoEFCPPMkQHTJBgOyF2P3KzLOIHiM7hBBSZelBDpD85kSe6R/VbIMl1r+iz1gICB9A=
   imageRegistryCredentials:
     - server: agilewaysreg.azurecr.io
       username: agilewaysreg
-      password: <secret_value>
+      password: <your_acr_password>
 tags: null
 type: Microsoft.ContainerInstance/containerGroups

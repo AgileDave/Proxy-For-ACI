@@ -7,10 +7,12 @@ networks:
 
 services:
   yarp-rev-proxy:
-    image: agilewaysreg.azurecr.io/sidecar/proxy:1.4
+    image: agilewaysreg.azurecr.io/sidecar/proxy:1.6
     container_name: yarp
     environment: 
       - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=<PFX_password_value>
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/proxy.pfx
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_HTTPS_PORT=443
     ports:
@@ -18,6 +20,8 @@ services:
       - "8080:80"
     networks: 
       - proxy-for-aci_default
+    volumes: 
+      - ./certs/:/https:ro
 
   simple-server:
     image: agilewaysreg.azurecr.io/sidecar/server:1.3
@@ -28,3 +32,4 @@ services:
       - "5000:5000"
     networks: 
       - proxy-for-aci_default
+    
