@@ -3,9 +3,9 @@ location: eastus
 name: paycor-sidecar-example
 properties:
   containers:
-    - name: yarp-rev-proxy
+    - name: yarp
       properties:
-        image: agilewaysreg.azurecr.io/sidecar/proxy:1.1
+        image: agilewaysreg.azurecr.io/sidecar/proxy:1.4
         ports:
           - port: 443
             protocol: TCP
@@ -15,12 +15,10 @@ properties:
           requests:
             cpu: 1.0
             memoryInGB: 1.5
-    - name: simple-server
+    - name: server
       properties:
-        image: agilewaysreg.azurecr.io/sidecar/server:1.2
+        image: agilewaysreg.azurecr.io/sidecar/server:1.3
         ports:
-          - port: 5001
-            protocol: TCP
           - port: 5000
             protocol: TCP
         resources:

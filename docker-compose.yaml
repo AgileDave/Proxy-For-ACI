@@ -1,19 +1,30 @@
-version: "3"
+version: "3.7"
+
+networks: 
+  proxy-for-aci_default:
+    name: proxy-for-aci_default
+    driver: bridge
+
 services:
   yarp-rev-proxy:
-    image: agilewaysreg.azurecr.io/sidecar/proxy:1.1
+    image: agilewaysreg.azurecr.io/sidecar/proxy:1.4
     container_name: yarp
+    environment: 
+      - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_HTTPS_PORT=443
     ports:
-      - target: 80
-        published: 8080
-        protocol: tcp
-        mode: host
+      - "8443:443"
+      - "8080:80"
+    networks: 
+      - proxy-for-aci_default
 
   simple-server:
-    image: agilewaysreg.azurecr.io/sidecar/server:1.2
+    image: agilewaysreg.azurecr.io/sidecar/server:1.3
     container_name: server
+    environment: 
+      - ASPNETCORE_URLS=http://+:5000
     ports:
-      - target: 5000
-        published: 5000
-        protocol: tcp
-        mode: host
+      - "5000:5000"
+    networks: 
+      - proxy-for-aci_default
